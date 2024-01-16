@@ -17,17 +17,28 @@ router.post('/signup', async (req, res) => {
   
 router.post('/signin', async (req, res) => {
     try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-      if (!user || !await user.comparePassword(password)) {
-        return res.status(401).json({ message: 'Invalid credentials' });
-      }
-      const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
-      res.status(200).json({ token });
+        const { login, password } = req.body;
+        const user = await User.findOne({
+            $or: [{ email: login }, { username: login }]
+        });
+
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Incorrect password' });
+        }
+
+        const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+        res.status(200).json({ token });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message });
     }
 });
+
+
   
 module.exports = router;
   
