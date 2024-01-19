@@ -2,9 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const cardSchema = new mongoose.Schema({
-  cardId: { type: String, required: true, unique: true }, 
-  imagePath: { type: String, required: true }, 
+  cardId: { type: String, required: true, unique: true },
+  imageData: { type: String, required: true }, 
 });
+
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -13,14 +14,17 @@ const userSchema = new mongoose.Schema({
   cards: [cardSchema]
 });
 
+//before saving to the database, we are hashing the password to ensure security
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 8);
 });
 
+//compare the password entered by the user with the hashed password in the database when logging in
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;
