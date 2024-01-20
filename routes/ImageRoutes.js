@@ -3,6 +3,7 @@ const express = require('express');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const authToken = require('../middleware/AuthToken');
 const router = express.Router();
 
 router.post('/save-card-image', async (req, res) => {
@@ -33,6 +34,20 @@ router.post('/save-card-image', async (req, res) => {
   } catch (error) {
     console.error('Error saving the image:', error);
     res.status(500).json({ error: 'Error saving the image.' });
+  }
+});
+
+router.get('/user/cards', authToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select('cards');
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    res.json(user.cards);
+  } catch (error) {
+    console.error('Error fetching cards:', error);
+    res.status(500).json({ error: 'Error fetching the cards' });
   }
 });
 
