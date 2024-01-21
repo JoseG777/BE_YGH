@@ -6,18 +6,11 @@ const User = require('../models/User');
 const authToken = require('../middleware/AuthToken');
 const router = express.Router();
 
-router.post('/save-card-image', async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).send('Authorization header is required');
-  }
-
-  const token = authHeader.split(' ')[1];
-  const { imageUrl, cardId } = req.body;
+router.post('/save-card-image', authToken, async (req, res) => {
+  const { imageUrl, cardId, cardLevel, cardAttribute, cardType} = req.body;
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.user.userId;
 
     const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
     const imageData = Buffer.from(response.data).toString('base64');
@@ -27,7 +20,7 @@ router.post('/save-card-image', async (req, res) => {
       return res.status(404).send('User not found');
     }
 
-    user.cards.push({ cardId, imageData });
+    user.cards.push({ cardId, imageData, cardLevel, cardAttribute, cardType });
     await user.save();
 
     res.status(200).json({ message: 'Image saved successfully.' });
@@ -36,6 +29,7 @@ router.post('/save-card-image', async (req, res) => {
     res.status(500).json({ error: 'Error saving the image.' });
   }
 });
+
 
 router.get('/user/cards', authToken, async (req, res) => {
   try {

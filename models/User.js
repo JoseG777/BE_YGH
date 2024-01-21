@@ -3,6 +3,9 @@ const bcrypt = require('bcryptjs');
 
 const cardSchema = new mongoose.Schema({
   cardId: { type: String, required: true, unique: true },
+  cardAttribute: { type: String, required: true },
+  cardLevel: { type: String, required: true},
+  cardType: { type: String, required: true},
   imageData: { type: String, required: true }, 
 });
 
