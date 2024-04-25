@@ -1,20 +1,10 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const cardSchema = new mongoose.Schema({
-  cardId: { type: String, required: true, unique: true },
-  cardAttribute: { type: String, required: true },
-  cardLevel: { type: String, required: true},
-  cardType: { type: String, required: true},
-  imageData: { type: String, required: true }, 
-});
-
-
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  cards: [cardSchema]
 });
 
 //before saving to the database, we are hashing the password to ensure security
