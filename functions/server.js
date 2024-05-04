@@ -19,6 +19,7 @@ ConnectMongo();
 
 // Import functions
 const createUser = require("./apis/CreateUser");
+const findEmail = require("./apis/FindEmail");
 
 // Set up routes
 app.post("/createUser", async (req, res) => {
@@ -29,5 +30,12 @@ app.post("/createUser", async (req, res) => {
     });
 });
 
+app.get("/findEmail", async (req, res) => {
+    corsHandler(req, res, async () => {
+        const username = req.query.username; 
+        const user = await findEmail(username); 
+        res.json(user); 
+    });
+});
 
 exports.api = functions.https.onRequest(app);
