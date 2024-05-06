@@ -1,5 +1,4 @@
 const functions = require("firebase-functions");
-const admin = require("firebase-admin");
 
 // Set up Express server
 const express = require("express");
@@ -8,34 +7,38 @@ const bodyParser = require("body-parser");
 
 // Initialize Express
 const app = express();
-app.use(cors({origin: true}));
+app.use(cors());
 app.use(bodyParser.json());
 
-const corsHandler = cors({origin: true});
+// const corsHandler = cors({origin: true});
 
 // Connect to MongoDB
-const ConnectMongo = require('./apis/MongoConnect');
-ConnectMongo();
+const connectMongo = require("./apis/MongoConnect");
+connectMongo();
 
 // Import functions
 const createUser = require("./apis/CreateUser");
 const findEmail = require("./apis/FindEmail");
+const saveImage = require("./apis/SaveImage");
 
 // Set up routes
 app.post("/createUser", async (req, res) => {
-    corsHandler(req, res, async () => {
-        const data = req.body;
-        const user = await createUser(data);
-        res.json(user);
-    });
+  const data = req.body;
+  const user = await createUser(data);
+  res.json(user);
 });
 
 app.get("/findEmail", async (req, res) => {
-    corsHandler(req, res, async () => {
-        const username = req.query.username; 
-        const user = await findEmail(username); 
-        res.json(user); 
-    });
+  const username = req.query.username;
+  const user = await findEmail(username);
+  res.json(user);
 });
+
+app.post("/saveImage", async (req, res) => {
+  const data = req.body;
+  const imageUrl = await saveImage(data);
+  res.json(imageUrl);
+});
+
 
 exports.api = functions.https.onRequest(app);
