@@ -20,6 +20,7 @@ ConnectMongo();
 // Import functions
 const createUser = require("./apis/CreateUser");
 const findEmail = require("./apis/FindEmail");
+const saveImage = require("./apis/SaveImage");
 
 // Set up routes
 app.post("/createUser", async (req, res) => {
@@ -36,6 +37,15 @@ app.get("/findEmail", async (req, res) => {
         const user = await findEmail(username); 
         res.json(user); 
     });
+});
+
+app.post("/saveImage", async (req, res) => {
+    try {
+        const imageUrl = await saveImage(req.body); // Expecting { uid, name, url } in req.body
+        res.status(200).json({ success: true, message: "Image saved successfully!", imageUrl });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to save image", error: error.message });
+    }
 });
 
 exports.api = functions.https.onRequest(app);
