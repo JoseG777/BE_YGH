@@ -20,6 +20,7 @@ connectMongo();
 const createUser = require("./apis/CreateUser");
 const findEmail = require("./apis/FindEmail");
 const saveImage = require("./apis/SaveImage");
+const getCards = require("./apis/GetCards");
 
 // Set up routes
 app.post("/createUser", async (req, res) => {
@@ -40,5 +41,10 @@ app.post("/saveImage", async (req, res) => {
   res.json(imageUrl);
 });
 
+app.get("/getCards", async (req, res) => {
+  const uid = req.query.uid;
+  const cards = await getCards(uid);
+  res.json(cards);
+});
 
 exports.api = functions.https.onRequest(app);
