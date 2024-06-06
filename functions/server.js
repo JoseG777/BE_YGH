@@ -24,10 +24,16 @@ const getCards = require("./apis/GetCards");
 
 // Set up routes
 app.post("/createUser", async (req, res) => {
-  const data = req.body;
-  const user = await createUser(data);
-  res.json(user);
+  try {
+    const data = req.body;
+    const user = await createUser(data);
+    res.json(user);
+  } catch (error) {
+    console.error("Error in /createUser:", error);
+    res.status(500).json({ message: error.message });
+  }
 });
+
 
 app.get("/findEmail", async (req, res) => {
   const username = req.query.username;
@@ -36,15 +42,27 @@ app.get("/findEmail", async (req, res) => {
 });
 
 app.post("/saveImage", async (req, res) => {
-  const data = req.body;
-  const imageUrl = await saveImage(data);
-  res.json(imageUrl);
+  try {
+    const data = req.body;
+    const imageUrl = await saveImage(data);
+    res.json({imageUrl});
+  } catch (error) {
+    console.error("Error in /saveImage:", error);
+    res.status(500).json({message: error.message});
+  }
 });
 
 app.get("/getCards", async (req, res) => {
   const uid = req.query.uid;
-  const cards = await getCards(uid);
-  res.json(cards);
+  try {
+    const cards = await getCards(uid);
+    res.json(cards);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
+app.listen(1115, () => {
+  console.log("Server is running on port 1115");
+});
 exports.api = functions.https.onRequest(app);

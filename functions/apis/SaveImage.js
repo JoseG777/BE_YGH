@@ -1,9 +1,10 @@
 const admin = require("firebase-admin");
 const serviceAccount = require("../serviceKey.json");
 const User = require("../models/UserSchema");
-const axios = require("axios"); 
-const stream = require("stream"); 
-const {promisify} = require("util"); 
+const Card = require("../models/CardSchema");
+const axios = require("axios");
+const stream = require("stream");
+const {promisify} = require("util");
 const pipeline = promisify(stream.pipeline);
 
 admin.initializeApp({
@@ -28,33 +29,31 @@ const saveImage = async (data) => {
       responseType: "stream",
     });
 
-    await pipeline(response.data, file.createWriteStream(), {
+    await pipeline(response.data, file.createWriteStream({
       metadata: {
         contentType: "image/jpeg",
       },
-    });
+    }));
 
-    console.log("Generating signed URL");
     const [signedUrl] = await file.getSignedUrl({action: "read", expires: "03-01-2500"});
 
-    console.log("Updating user with new card");
+    const newCard = new Card({
+      name,
+      description,
+      archetype,
+      attribute,
+      atk,
+      def,
+      level,
+      type,
+      imageUrl: signedUrl,
+    });
+
+    const savedCard = await newCard.save();
+
     const updatedUser = await User.findOneAndUpdate(
         {uid: uid},
-        {
-          $push: {
-            cards: {
-              name,
-              description,
-              archetype,
-              attribute,
-              atk,
-              def,
-              level,
-              type,
-              imageUrl: signedUrl,
-            },
-          },
-        },
+        {$push: {cards: savedCard._id}},
         {new: true},
     );
 
@@ -71,7 +70,4 @@ const saveImage = async (data) => {
   }
 };
 
-
 module.exports = saveImage;
-
-
